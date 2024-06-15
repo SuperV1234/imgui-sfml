@@ -21,12 +21,35 @@ set(IMGUI_SFML_CONFIG_INSTALL_DIR "" CACHE PATH "Path where user's config header
 # For FindImGui.cmake
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-if(IMGUI_SFML_FIND_SFML)
-  if(NOT BUILD_SHARED_LIBS)
-    set(SFML_STATIC_LIBRARIES ON)
-  endif()
-  find_package(SFML 3 REQUIRED COMPONENTS Graphics)
-endif()
+
+file(
+    DOWNLOAD
+    https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.38.3/CPM.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake
+    EXPECTED_HASH SHA256=cc155ce02e7945e7b8967ddfaff0b050e958a723ef7aad3766d368940cb15494
+)
+
+include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
+
+
+set(BUILD_SHARED_LIBS false)
+set(SFML_STATIC_LIBRARIES true)
+set(SFML_ENABLE_PCH true)
+set(SFML_ENABLE_LIFETIME_TRACKING true)
+
+CPMAddPackage(
+    NAME SFML
+    GITHUB_REPOSITORY vittorioromeo/SFML
+    GIT_TAG 7f253a5e4dc96554f448674bd3e8c70ef9fa283c
+)
+
+set(SFML_ENABLE_LIFETIME_TRACKING true)
+
+set_target_properties(sfml-system PROPERTIES UNITY_BUILD OFF)
+set_target_properties(sfml-window PROPERTIES UNITY_BUILD OFF)
+set_target_properties(sfml-graphics PROPERTIES UNITY_BUILD OFF)
+set_target_properties(sfml-audio PROPERTIES UNITY_BUILD OFF)
+set_target_properties(sfml-network PROPERTIES UNITY_BUILD OFF)
 
 # ImGui does not provide native support for CMakeLists, workaround for now to have
 # users specify IMGUI_DIR. Waiting for this PR to get merged...
