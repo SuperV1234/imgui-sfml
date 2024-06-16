@@ -670,13 +670,13 @@ void Image(const sf::RenderTexture& texture, const sf::Vector2f& size, const sf:
 
 /////////////// Image Overloads for sf::Sprite
 
-void Image(const sf::Sprite& sprite, const sf::Color& tintColor, const sf::Color& borderColor) {
-    Image(sprite, sprite.getGlobalBounds().size, tintColor, borderColor);
+void Image(const sf::Sprite& sprite, const sf::Texture& texture, const sf::Color& tintColor,
+           const sf::Color& borderColor) {
+    Image(sprite, texture, sprite.getGlobalBounds().size, tintColor, borderColor);
 }
 
-void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Color& tintColor,
-           const sf::Color& borderColor) {
-    const sf::Texture& texture = sprite.getTexture();
+void Image(const sf::Sprite& sprite, const sf::Texture& texture, const sf::Vector2f& size,
+           const sf::Color& tintColor, const sf::Color& borderColor) {
     const sf::Vector2f textureSize(texture.getSize());
     const sf::FloatRect textureRect(sprite.getTextureRect());
     const ImVec2 uv0(textureRect.position.cwiseDiv(textureSize));
@@ -713,9 +713,8 @@ bool ImageButton(const char* id, const sf::RenderTexture& texture, const sf::Vec
 
 /////////////// Image Button Overloads for sf::Sprite
 
-bool ImageButton(const char* id, const sf::Sprite& sprite, const sf::Vector2f& size,
-                 const sf::Color& bgColor, const sf::Color& tintColor) {
-    const sf::Texture& texture = sprite.getTexture();
+bool ImageButton(const char* id, const sf::Sprite& sprite, const sf::Texture& texture,
+                 const sf::Vector2f& size, const sf::Color& bgColor, const sf::Color& tintColor) {
     const sf::Vector2f textureSize(texture.getSize());
     const sf::FloatRect textureRect(sprite.getTextureRect());
     const ImVec2 uv0(textureRect.position.cwiseDiv(textureSize));
