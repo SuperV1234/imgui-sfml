@@ -9,6 +9,8 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/OpenGL.hpp>
+#include <SFML/System/String.hpp>
+#include <SFML/System/StringUtfUtils.hpp>
 #include <SFML/Window/Clipboard.hpp>
 #include <SFML/Window/Cursor.hpp>
 #include <SFML/Window/Event.hpp>
@@ -128,7 +130,7 @@ struct SpriteTextureData {
     ImTextureID textureID{};
 };
 
-SpriteTextureData getSpriteTextureData(const sf::Sprite& sprite);
+SpriteTextureData getSpriteTextureData(const sf::Sprite& sprite, const sf::Texture& texture);
 
 ImTextureID convertGLTextureHandleToImTextureID(GLuint glTextureHandle);
 GLuint convertImTextureIDToGLTextureHandle(ImTextureID textureID);
@@ -681,13 +683,14 @@ void Image(const sf::RenderTexture& texture, const sf::Vector2f& size, const sf:
 
 /////////////// Image Overloads for sf::Sprite
 
-void Image(const sf::Sprite& sprite, const sf::Color& tintColor, const sf::Color& borderColor) {
-    Image(sprite, sprite.getGlobalBounds().size, tintColor, borderColor);
+void Image(const sf::Sprite& sprite, const sf::Texture& texture, const sf::Color& tintColor,
+           const sf::Color& borderColor) {
+    Image(sprite, texture, sprite.getGlobalBounds().size, tintColor, borderColor);
 }
 
-void Image(const sf::Sprite& sprite, const sf::Vector2f& size, const sf::Color& tintColor,
-           const sf::Color& borderColor) {
-    auto [uv0, uv1, textureID] = getSpriteTextureData(sprite);
+void Image(const sf::Sprite& sprite, const sf::Texture& texture, const sf::Vector2f& size,
+           const sf::Color& tintColor, const sf::Color& borderColor) {
+    auto [uv0, uv1, textureID] = getSpriteTextureData(sprite, texture);
     ImGui::Image(textureID, toImVec2(size), uv0, uv1, toImColor(tintColor), toImColor(borderColor));
 }
 
@@ -716,9 +719,9 @@ bool ImageButton(const char* id, const sf::RenderTexture& texture, const sf::Vec
 
 /////////////// Image Button Overloads for sf::Sprite
 
-bool ImageButton(const char* id, const sf::Sprite& sprite, const sf::Vector2f& size,
-                 const sf::Color& bgColor, const sf::Color& tintColor) {
-    auto [uv0, uv1, textureID] = getSpriteTextureData(sprite);
+bool ImageButton(const char* id, const sf::Sprite& sprite, const sf::Texture& texture,
+                 const sf::Vector2f& size, const sf::Color& bgColor, const sf::Color& tintColor) {
+    auto [uv0, uv1, textureID] = getSpriteTextureData(sprite, texture);
     return ImGui::ImageButton(id, textureID, toImVec2(size), uv0, uv1, toImColor(bgColor),
                               toImColor(tintColor));
 }
@@ -768,8 +771,7 @@ ImVec2 getDownRightAbsolute(const sf::FloatRect& rect) {
     return toImVec2(toSfVector2f(ImGui::GetCursorScreenPos()) + rect.position + rect.size);
 }
 
-SpriteTextureData getSpriteTextureData(const sf::Sprite& sprite) {
-    const sf::Texture& texture(sprite.getTexture());
+SpriteTextureData getSpriteTextureData(const sf::Sprite& sprite, const sf::Texture& texture) {
     const sf::Vector2f textureSize(texture.getSize());
     const sf::FloatRect textureRect(sprite.getTextureRect());
 
@@ -1064,7 +1066,7 @@ void updateJoystickAxisState(ImGuiIO& io) {
 }
 
 void setClipboardText(void* /*userData*/, const char* text) {
-    sf::Clipboard::setString(sf::String::fromUtf8(text, text + std::strlen(text)));
+    sf::Clipboard::setString(sf::StringUtfUtils::fromUtf8(text, text + std::strlen(text)));
 }
 
 const char* getClipboardText(void* /*userData*/) {
