@@ -2,10 +2,12 @@
 #define IMGUI_SFML_H
 
 #include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/Rect.hpp>
+
+#include <SFML/Window/Joystick.hpp>
+
+#include <SFML/System/Rect.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <SFML/Window/Joystick.hpp>
 
 #include <optional>
 
