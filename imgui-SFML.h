@@ -5,16 +5,16 @@
 
 #include <SFML/Window/Joystick.hpp>
 
+#include <SFML/System/Optional.hpp>
 #include <SFML/System/Rect.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
-
-#include <optional>
 
 #include "imgui-SFML_export.h"
 
 namespace sf {
 class Event;
+class GraphicsContext;
 class RenderTarget;
 class RenderTexture;
 class RenderWindow;
@@ -25,10 +25,12 @@ class Window;
 
 namespace ImGui {
 namespace SFML {
-[[nodiscard]] IMGUI_SFML_API bool Init(sf::RenderWindow& window, bool loadDefaultFont = true);
-[[nodiscard]] IMGUI_SFML_API bool Init(sf::Window& window, sf::RenderTarget& target,
-                                       bool loadDefaultFont = true);
-[[nodiscard]] IMGUI_SFML_API bool Init(sf::Window& window, const sf::Vector2f& displaySize,
+[[nodiscard]] IMGUI_SFML_API bool Init(sf::GraphicsContext& graphicsContext,
+                                       sf::RenderWindow& window, bool loadDefaultFont = true);
+[[nodiscard]] IMGUI_SFML_API bool Init(sf::GraphicsContext& graphicsContext, sf::Window& window,
+                                       sf::RenderTarget& target, bool loadDefaultFont = true);
+[[nodiscard]] IMGUI_SFML_API bool Init(sf::GraphicsContext& graphicsContext, sf::Window& window,
+                                       const sf::Vector2f& displaySize,
                                        bool loadDefaultFont = true);
 
 IMGUI_SFML_API void SetCurrentWindow(const sf::Window& window);
@@ -47,8 +49,8 @@ IMGUI_SFML_API void Shutdown(const sf::Window& window);
 // Shuts down all ImGui contexts
 IMGUI_SFML_API void Shutdown();
 
-[[nodiscard]] IMGUI_SFML_API bool UpdateFontTexture();
-IMGUI_SFML_API std::optional<sf::Texture>& GetFontTexture();
+[[nodiscard]] IMGUI_SFML_API bool UpdateFontTexture(sf::GraphicsContext& graphicsContext);
+IMGUI_SFML_API sf::Optional<sf::Texture>& GetFontTexture();
 
 // joystick functions
 IMGUI_SFML_API void SetActiveJoystickId(unsigned int joystickId);

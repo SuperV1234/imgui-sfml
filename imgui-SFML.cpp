@@ -182,8 +182,8 @@ struct WindowContext {
     const sf::Window* window;
     ImGuiContext* imContext{ImGui::CreateContext()};
 
-    std::optional<sf::Texture> fontTexture; // internal font atlas which is used if user doesn't set
-                                            // a custom sf::Texture.
+    sf::Optional<sf::Texture> fontTexture; // internal font atlas which is used if user doesn't set
+                                           // a custom sf::Texture.
 
     bool windowHasFocus;
     bool mouseMoved{false};
@@ -201,7 +201,7 @@ struct WindowContext {
     TriggerInfo lTriggerInfo;
     TriggerInfo rTriggerInfo;
 
-    std::optional<sf::Cursor> mouseCursors[ImGuiMouseCursor_COUNT];
+    sf::Optional<sf::Cursor> mouseCursors[ImGuiMouseCursor_COUNT];
 
 #ifdef ANDROID
 #ifdef USE_JNI
@@ -223,15 +223,17 @@ WindowContext* s_currWindowCtx = nullptr;
 
 namespace ImGui {
 namespace SFML {
-bool Init(sf::RenderWindow& window, bool loadDefaultFont) {
-    return Init(window, window, loadDefaultFont);
+bool Init(sf::GraphicsContext& graphicsContext, sf::RenderWindow& window, bool loadDefaultFont) {
+    return Init(graphicsContext, window, window, loadDefaultFont);
 }
 
-bool Init(sf::Window& window, sf::RenderTarget& target, bool loadDefaultFont) {
-    return Init(window, sf::Vector2f(target.getSize()), loadDefaultFont);
+bool Init(sf::GraphicsContext& graphicsContext, sf::Window& window, sf::RenderTarget& target,
+          bool loadDefaultFont) {
+    return Init(graphicsContext, window, target.getSize().to<sf::Vector2f>(), loadDefaultFont);
 }
 
-bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultFont) {
+bool Init(sf::GraphicsContext& graphicsContext, sf::Window& window, const sf::Vector2f& displaySize,
+          bool loadDefaultFont) {
     s_windowContexts.emplace_back(std::make_unique<WindowContext>(&window));
 
     s_currWindowCtx = s_windowContexts.back().get();
@@ -269,7 +271,7 @@ bool Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
     if (loadDefaultFont) {
         // this will load default font automatically
         // No need to call AddDefaultFont
-        return UpdateFontTexture();
+        return UpdateFontTexture(graphicsContext);
     }
 
     return true;
@@ -323,7 +325,7 @@ void ProcessEvent(const sf::Window& window, const sf::Event& event) {
                 io.AddMouseWheelEvent(mouseWheelScrolled->delta, 0);
             }
         }
-        const auto handleKeyChanged = [&io](const sf::Event::KeyChanged& keyChanged, bool down) {
+        const auto handleKeyChanged = [&io](const auto& keyChanged, bool down) {
             const ImGuiKey mod = keycodeToImGuiMod(keyChanged.code);
             // The modifier booleans are not reliable when it's the modifier
             // itself that's being pressed. Detect these presses directly.
@@ -388,9 +390,9 @@ void Update(sf::Window& window, sf::RenderTarget& target, sf::Time dt) {
     if (!s_currWindowCtx->mouseMoved) {
         if (sf::Touch::isDown(0)) s_currWindowCtx->touchPos = sf::Touch::getPosition(0, window);
 
-        Update(s_currWindowCtx->touchPos, sf::Vector2f(target.getSize()), dt);
+        Update(s_currWindowCtx->touchPos, target.getSize().to<sf::Vector2f>(), dt);
     } else {
-        Update(sf::Mouse::getPosition(window), sf::Vector2f(target.getSize()), dt);
+        Update(sf::Mouse::getPosition(window), target.getSize().to<sf::Vector2f>(), dt);
     }
 }
 
@@ -499,7 +501,7 @@ void Shutdown() {
     s_windowContexts.clear();
 }
 
-bool UpdateFontTexture() {
+bool UpdateFontTexture(sf::GraphicsContext& graphicsContext) {
     assert(s_currWindowCtx);
 
     ImGuiIO& io = ImGui::GetIO();
@@ -509,10 +511,10 @@ bool UpdateFontTexture() {
 
     io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
-    auto newTexture =
-        sf::Texture::create({static_cast<unsigned>(width), static_cast<unsigned>(height)});
+    auto newTexture = sf::Texture::create(graphicsContext, {static_cast<unsigned>(width),
+                                                            static_cast<unsigned>(height)});
 
-    if (!newTexture.has_value()) {
+    if (!newTexture.hasValue()) {
         return false;
     }
 
@@ -526,7 +528,7 @@ bool UpdateFontTexture() {
     return true;
 }
 
-std::optional<sf::Texture>& GetFontTexture() {
+sf::Optional<sf::Texture>& GetFontTexture() {
     assert(s_currWindowCtx);
     return s_currWindowCtx->fontTexture;
 }
@@ -652,7 +654,7 @@ void SetRTriggerAxis(sf::Joystick::Axis rTriggerAxis) {
 /////////////// Image Overloads for sf::Texture
 
 void Image(const sf::Texture& texture, const sf::Color& tintColor, const sf::Color& borderColor) {
-    Image(texture, sf::Vector2f(texture.getSize()), tintColor, borderColor);
+    Image(texture, texture.getSize().to<sf::Vector2f>(), tintColor, borderColor);
 }
 
 void Image(const sf::Texture& texture, const sf::Vector2f& size, const sf::Color& tintColor,
@@ -666,7 +668,7 @@ void Image(const sf::Texture& texture, const sf::Vector2f& size, const sf::Color
 /////////////// Image Overloads for sf::RenderTexture
 void Image(const sf::RenderTexture& texture, const sf::Color& tintColor,
            const sf::Color& borderColor) {
-    Image(texture, sf::Vector2f(texture.getSize()), tintColor, borderColor);
+    Image(texture, texture.getSize().to<sf::Vector2f>(), tintColor, borderColor);
 }
 
 void Image(const sf::RenderTexture& texture, const sf::Vector2f& size, const sf::Color& tintColor,
@@ -772,8 +774,8 @@ ImVec2 getDownRightAbsolute(const sf::FloatRect& rect) {
 }
 
 SpriteTextureData getSpriteTextureData(const sf::Sprite& sprite, const sf::Texture& texture) {
-    const sf::Vector2f textureSize(texture.getSize());
-    const sf::FloatRect textureRect(sprite.getTextureRect());
+    const auto textureSize(texture.getSize().to<sf::Vector2f>());
+    const auto textureRect(sprite.getTextureRect().to<sf::FloatRect>());
 
     return {toImVec2(textureRect.position.cwiseDiv(textureSize)),
             toImVec2((textureRect.position + textureRect.size).cwiseDiv(textureSize)),
