@@ -24,11 +24,9 @@ endif()
 
 set(IMGUI_SOURCES
   ${IMGUI_INCLUDE_DIR}/imgui.cpp
-  ${IMGUI_INCLUDE_DIR}/imgui_demo.cpp
   ${IMGUI_INCLUDE_DIR}/imgui_draw.cpp
   ${IMGUI_INCLUDE_DIR}/imgui_tables.cpp
   ${IMGUI_INCLUDE_DIR}/imgui_widgets.cpp
-  ${IMGUI_INCLUDE_DIR}/misc/cpp/imgui_stdlib.cpp
 )
 
 # Extract version from header

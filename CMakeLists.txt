@@ -47,7 +47,6 @@ set(IMGUI_PUBLIC_HEADERS
   ${IMGUI_INCLUDE_DIR}/imstb_rectpack.h
   ${IMGUI_INCLUDE_DIR}/imstb_textedit.h
   ${IMGUI_INCLUDE_DIR}/imstb_truetype.h
-  ${IMGUI_INCLUDE_DIR}/misc/cpp/imgui_stdlib.h
 )
 
 # CMake 3.11 and later prefer to choose GLVND, but we choose legacy OpenGL just because it's safer

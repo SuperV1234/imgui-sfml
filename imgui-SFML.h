@@ -5,10 +5,11 @@
 
 #include <SFML/Window/Joystick.hpp>
 
-#include <SFML/System/Optional.hpp>
 #include <SFML/System/Rect.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
+
+#include <SFML/Base/Optional.hpp>
 
 #include "imgui-SFML_export.h"
 
@@ -50,7 +51,7 @@ IMGUI_SFML_API void Shutdown(const sf::Window& window);
 IMGUI_SFML_API void Shutdown();
 
 [[nodiscard]] IMGUI_SFML_API bool UpdateFontTexture(sf::GraphicsContext& graphicsContext);
-IMGUI_SFML_API sf::Optional<sf::Texture>& GetFontTexture();
+IMGUI_SFML_API sf::base::Optional<sf::Texture>& GetFontTexture();
 
 // joystick functions
 IMGUI_SFML_API void SetActiveJoystickId(unsigned int joystickId);

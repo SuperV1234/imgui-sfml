@@ -182,8 +182,8 @@ struct WindowContext {
     const sf::Window* window;
     ImGuiContext* imContext{ImGui::CreateContext()};
 
-    sf::Optional<sf::Texture> fontTexture; // internal font atlas which is used if user doesn't set
-                                           // a custom sf::Texture.
+    sf::base::Optional<sf::Texture> fontTexture; // internal font atlas which is used if user
+                                                 // doesn't set a custom sf::Texture.
 
     bool windowHasFocus;
     bool mouseMoved{false};
@@ -201,7 +201,7 @@ struct WindowContext {
     TriggerInfo lTriggerInfo;
     TriggerInfo rTriggerInfo;
 
-    sf::Optional<sf::Cursor> mouseCursors[ImGuiMouseCursor_COUNT];
+    sf::base::Optional<sf::Cursor> mouseCursors[ImGuiMouseCursor_COUNT];
 
 #ifdef ANDROID
 #ifdef USE_JNI
@@ -528,7 +528,7 @@ bool UpdateFontTexture(sf::GraphicsContext& graphicsContext) {
     return true;
 }
 
-sf::Optional<sf::Texture>& GetFontTexture() {
+sf::base::Optional<sf::Texture>& GetFontTexture() {
     assert(s_currWindowCtx);
     return s_currWindowCtx->fontTexture;
 }
